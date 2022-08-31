@@ -16,15 +16,7 @@ set laststatus=2
 set encoding=UTF-8
 set t_Co=256 
 set splitbelow
-
-
-" Enable true colors
-if exists('+termguicolors')
-  " Necessary when using tmux
-  let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-  let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  set termguicolors
-endif
+cabbrev bterm bo term
 
 " File-types
 autocmd BufNewFile,BufRead *.go set filetype=go
@@ -41,11 +33,6 @@ autocmd FileType go :setlocal sw=4 ts=4 sts=4
 " Make vertical separator pretty
 highlight VertSplit cterm=NONE
 set fillchars+=vert:\▏
-
-
-
-" Get rid of unnecessary highlight for spelling
-highlight clear SpellBad
 
 " ============== "
 " ===Mappings=== "
@@ -65,36 +52,41 @@ tnoremap <C-L> <C-W><C-L>
 tnoremap <C-H> <C-W><C-H>
 tnoremap <C-b> <C-\><C-n>
 
-" Copy to system clipboard
+
 noremap <leader>c "*yy<cr>
-
-" Paste without indent
 noremap<leader>v "+p<cr>
-
-" fzf.vim
 noremap <leader>p :Files<cr>
 noremap <leader>g :GFiles<cr>
 noremap <leader>b :Buffers<cr>
-noremap <leader>f :Ag<cr>
-
-" nerdtree
 noremap <leader>e :NERDTreeToggle<cr>
-
-" Custom cmd shortcuts
 noremap <leader>/ :BTerm<cr>
 noremap <leader>= <C-W><C-=>
 noremap <leader>n gt
 noremap <leader>N gT
+noremap <leader>t :tabnew <cr>
+noremap <leader>s :vsplit <cr>
 
-" Tab autocomplete
-inoremap <silent><expr> <Tab>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<Tab>" :
+
+
+" This is auto complete fix after COC did the update 
+" the broke my config!
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
-" Shift + j/k in visual mode for smart move
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " ============="
 " ===Plugins==="
@@ -110,41 +102,45 @@ call plug#begin('~/.vim/plugged')
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
     Plug 'ryanoasis/vim-devicons'
+    Plug 'vim-syntastic/syntastic'
 
     " colorschemes
-    Plug 'srcery-colors/srcery-vim'
-    Plug 'pacokwon/onedarkhc.vim'
-    Plug 'julien/vim-colors-green'
-    Plug 'morhetz/gruvbox'
-    Plug 'foxbunny/vim-amber'
-    Plug 'adrian5/oceanic-next-vim'
-    Plug 'tckmn/hotdog.vim'
-    Plug 'tomasr/molokai'
-    "CoC
+    Plug 'sainnhe/everforest'
+    Plug 'ayu-theme/ayu-vim'
+    Plug 'sainnhe/gruvbox-material'
+
+    " COC server "
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
     " TypeScript
     Plug 'leafgarland/typescript-vim'
+    Plug 'peitalin/vim-jsx-typescript'
 
-    " CoffeeScript
-    Plug 'kchmck/vim-coffee-script'
-    
     " JavaScript
     Plug 'pangloss/vim-javascript'
     Plug 'maxmellon/vim-jsx-pretty'
     Plug 'styled-components/vim-styled-components' 
 
-    " Go
-    Plug 'fatih/vim-go'
-
-    " Rust
-    Plug 'rust-lang/rust.vim'
-
     " GLSL
     Plug 'tikhomirov/vim-glsl'
 call plug#end()
 
-colorscheme onedarkhc
+" Current color scheme "
+
+
+" Important!!
+        if has('termguicolors')
+          set termguicolors
+        endif
+        " For dark version.
+        set background=dark
+        " This configuration option should be placed before `colorscheme everforest`.
+        " Available values: 'hard', 'medium'(default), 'soft'
+        let g:everforest_background = 'hard'
+        " For better performance
+        let g:everforest_better_performance = 1
+        colorscheme gruvbox-material
+
 let g:airline_theme='base16'
 
 " Must come after colorscheme command
@@ -168,6 +164,7 @@ autocmd BufEnter * if tabpagenr('$') == 1
 let g:NERDTreeHighlightFolders = 1
 let g:NERDTreeHighlightFoldersFullName = 1
 
+
 let g:NERDTreeSyntaxEnabledExtensions = ['rb', 'ruby']
 
 " vim-devicons
@@ -188,7 +185,6 @@ let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['package.json'] = ''
 let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['package.lock.json'] = ''
 let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['node_modules'] = ''
 let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['webpack\.'] = 'ﰩ'
-
 let g:DevIconsEnableFoldersOpenClose = 1
 
 " vim-airlines
