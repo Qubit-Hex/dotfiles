@@ -17,6 +17,11 @@ set encoding=UTF-8
 set t_Co=256 
 set splitbelow
 cabbrev bterm bo term
+set term=xterm-256color 
+set background=dark
+set termguicolors
+
+
 
 " File-types
 autocmd BufNewFile,BufRead *.go set filetype=go
@@ -29,6 +34,8 @@ autocmd FileType javascript :setlocal sw=2 ts=2 sts=2
 autocmd FileType xml :setlocal sw=2 ts=2 sts=2
 autocmd FileType python :setlocal sw=4 ts=4 sts=4
 autocmd FileType go :setlocal sw=4 ts=4 sts=4
+autocmd FileType php :setlocal sw=4 ts=4 sts=4
+autocmd FileType css :setlocal sw=4 ts=4 sts=4
 
 " Make vertical separator pretty
 highlight VertSplit cterm=NONE
@@ -101,14 +108,14 @@ call plug#begin('~/.vim/plugged')
     Plug 'preservim/nerdcommenter'
     Plug 'vim-airline/vim-airline'
     Plug 'vim-airline/vim-airline-themes'
-    Plug 'ryanoasis/vim-devicons'
     Plug 'vim-syntastic/syntastic'
+    Plug 'sheerun/vim-polyglot'
 
     " colorschemes
     Plug 'sainnhe/everforest'
     Plug 'ayu-theme/ayu-vim'
-    Plug 'sainnhe/gruvbox-material'
-
+    Plug 'ghifarit53/tokyonight-vim'
+    Plug 'rafi/awesome-vim-colorschemes'
     " COC server "
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
@@ -123,36 +130,24 @@ call plug#begin('~/.vim/plugged')
 
     " GLSL
     Plug 'tikhomirov/vim-glsl'
+    Plug 'ryanoasis/vim-devicons'
+
 call plug#end()
 
-" Current color scheme "
-
-
-" Important!!
-        if has('termguicolors')
-          set termguicolors
-        endif
-        " For dark version.
-        set background=dark
-        " This configuration option should be placed before `colorscheme everforest`.
-        " Available values: 'hard', 'medium'(default), 'soft'
-        let g:everforest_background = 'hard'
-        " For better performance
-        let g:everforest_better_performance = 1
-        colorscheme gruvbox-material
-
-let g:airline_theme='base16'
-
-" Must come after colorscheme command
-" Ensure the any colorscheme has transparent bg
+" COLOR SCHEME SETTINGS " 
+colorscheme tokyonight
+let g:airline_theme = "base16"
 hi Normal guibg=NONE ctermbg=NONE
+hi LineNr guibg=NONE ctermbg=NONE
+hi SignColumn guibg=NONE ctermbg=NONE
+hi EndOfBuffer guibg=NONE ctermbg=NONE
 
-" ============="
-" PluginConfigs"
-" ============="
 
-" nerdtree
-"let NERDTreeShowHidden = 1
+
+set guifont=DroidSansMono\ Nerd\ Font\ 11
+
+
+" PLUG IN CONFIGS " 
 let NERDTreeMinimalUI=1
 autocmd BufEnter * if tabpagenr('$') == 1 
       \ && winnr('$') == 1 
@@ -165,28 +160,12 @@ let g:NERDTreeHighlightFolders = 1
 let g:NERDTreeHighlightFoldersFullName = 1
 
 
-let g:NERDTreeSyntaxEnabledExtensions = ['rb', 'ruby']
 
 " vim-devicons
 let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {}
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['html'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['js'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['json'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['jsx'] = 'ﰆ'
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['md'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['vim'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['yaml'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['yml'] = ''
-
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols = {}
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.*vimrc.*'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.gitignore'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['package.json'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['package.lock.json'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['node_modules'] = ''
-let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['webpack\.'] = 'ﰩ'
-let g:DevIconsEnableFoldersOpenClose = 1
-
+let g:webdevicons_enable = 1
+let g:webdevicons_enable_nerdtree = 1
+let g:webdevicons_enable_airline_tabline = 1
 " vim-airlines
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#bufferline#enabled = 1
@@ -195,9 +174,24 @@ let g:airline_left_alt_sep = ''
 let g:airline_right_sep = ''
 
 " fzf.vim
-let g:fzf_colors= {
-      \  'border': ['fg', 'Type' ],
-      \  'gutter': ['fg', 'Type' ] }
+
+
+    let g:fzf_colors =                                                                         
+    \ { 'fg':      ['fg', 'Normal'],                                                           
+      \ 'bg':      ['bg', 'Normal'],                                                           
+      \ 'hl':      ['fg', 'Comment'],                                                          
+      \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],                             
+      \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],                                       
+      \ 'hl+':     ['fg', 'Statement'],                                                        
+      \ 'info':    ['fg', 'PreProc'],                                                          
+      \ 'border':  ['fg', 'Ignore'],                                                           
+      \ 'prompt':  ['fg', 'Conditional'],                                                      
+      \ 'pointer': ['fg', 'Exception'],                                                        
+      \ 'marker':  ['fg', 'Keyword'],                                                          
+      \ 'spinner': ['fg', 'Label'],                                                            
+      \ 'header':  ['fg', 'Comment'] } 
+
+
 
 " vim-jsx-pretty
 hi jsxAttrib ctermfg=3*
@@ -223,9 +217,15 @@ let g:go_highlight_string_spellcheck = 1
 let g:go_highlight_types = 1
 let g:go_highlight_function_calls = 1
 
-" ============="
-" ==CustomCmds="
-" ============="
+
+
+" CUSTOM COMMANDS
+
+function! ProjectScope()
+        execute "!git ls-files | xargs cloc"
+endfunction
+command! ProjectScope call ProjectScope()
+
 
 " Absolute path of open file to clipboard
 function! Cwf()
