@@ -22,7 +22,6 @@ set background=dark
 set termguicolors
 
 
-
 " File-types
 autocmd BufNewFile,BufRead *.go set filetype=go
 
@@ -99,7 +98,9 @@ inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
 " ===Plugins==="
 " ============="
 call plug#begin('~/.vim/plugged')
+
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'neoclide/coc.nvim'
     Plug 'junegunn/fzf.vim'
     Plug 'ggreer/the_silver_searcher'
     Plug 'preservim/nerdtree'
@@ -115,11 +116,17 @@ call plug#begin('~/.vim/plugged')
     Plug 'sainnhe/everforest'
     Plug 'ayu-theme/ayu-vim'
     Plug 'ghifarit53/tokyonight-vim'
-    Plug 'rafi/awesome-vim-colorschemes'
+    Plug 'dracula/vim'
+    Plug 'joshdick/onedark.vim'
+    Plug 'AlessandroYorba/Sierra'
+
+    " Icon Theme " 
+    Plug 'ryanoasis/vim-devicons'
+
     " COC server "
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
-    " TypeScript
+      " TypeScript
     Plug 'leafgarland/typescript-vim'
     Plug 'peitalin/vim-jsx-typescript'
 
@@ -128,14 +135,14 @@ call plug#begin('~/.vim/plugged')
     Plug 'maxmellon/vim-jsx-pretty'
     Plug 'styled-components/vim-styled-components' 
 
-    " GLSL
-    Plug 'tikhomirov/vim-glsl'
-    Plug 'ryanoasis/vim-devicons'
-
 call plug#end()
 
 " COLOR SCHEME SETTINGS " 
-colorscheme tokyonight
+
+
+let g:sierra_Sunset = 1
+
+colorscheme sierra
 let g:airline_theme = "base16"
 hi Normal guibg=NONE ctermbg=NONE
 hi LineNr guibg=NONE ctermbg=NONE
@@ -219,8 +226,8 @@ let g:go_highlight_function_calls = 1
 
 
 
-" CUSTOM COMMANDS
-
+" In order to count the amount of code 
+" current in the project's scope. 
 function! ProjectScope()
         execute "!git ls-files | xargs cloc"
 endfunction
@@ -290,9 +297,4 @@ function LineUp()
   normal! ^dg_k$A 
   normal! pjdd
 endfunction
-command! LU call LineUp()
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~ '\s'
-endfunction
+command! LU call LineUp()n
