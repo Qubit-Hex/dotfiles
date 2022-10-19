@@ -11,11 +11,13 @@
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
+(global-set-key (kbd "C-x C-b") 'buffer-menu)
+
 
 (menu-bar-mode 1) ; SHOW THE MENU BAR.
 (tool-bar-mode 0) ; Disable tool bar
 (scroll-bar-mode -1) ; remove the scroll bar since neo tree gets fucked up.....
-(setq inhibit-splash-screen t) ; disable the splash screen
+(setq inhibit-splash-screen t)  ; disable the default emacs splash screen
 
 
 ;; ENABLE PACKAGE REPOS FOR THE PACKAGE MANAGER
@@ -38,16 +40,70 @@
 			     (R . t)
 			     ))
 
+;; ENABLE IVY MODE  
+(ivy-mode)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+
+;; enable this if you want `swiper' to use it
+;; (setq search-default-mode #'char-fold-to-regexp)
+
+
+
+;; ==========================================
+;;           CUSTOM KEYBOARD SHORTCUTS
+;; =========================================
+
+;; DEFAULT KEY WILL BE <CTRL>c + <CUSTOM COMAND>
+
+; find a file with fzf 
+(global-set-key (kbd "C-c p") 'counsel-find-file)
+
+;; TERMINAL CONTROL FLOW 
+(global-set-key  (kbd "C-c /") 'multi-term)
+
+; toggle tree macs 
+(global-set-key (kbd "C-c e") 'treemacs)
+; toggle the buffers
+(global-set-key (kbd "C-c b") 'buffer-menu)
+
+(global-set-key (kbd "C-c t") 'centaur-tabs--create-new-tab)
+(global-set-key (kbd "C-c n") 'centaur-tabs-forward)
+(global-set-key (kbd "C-c N") 'centaur-tabs-backward)
+
+
+;; =============================================
+;;          END OF CUSTOM KEYBOARD SHORTCUTS
+;; =============================================
+
+
+
+
 ;; ==========================================================================
 ;;          Package START
 ;; =========================================================================
 
+(use-package centaur-tabs
+  :ensure t
+  :demand
+  :config
+  (centaur-tabs-mode t)
+  (setq centaur-tabs-plain-icons t)
+  (setq centaur-tabs-set-bar 'over)
+  
+ )
 
+(use-package multi-term
+  :ensure t
+  :config
+  (setq mult-term-program "/bin/bash")
+  )
+
+		 
 (use-package exec-path-from-shell
   :ensure t
   :config
   (exec-path-from-shell-initialize))
-
 
 (use-package which-key
   :ensure t
@@ -130,6 +186,8 @@
 (use-package lsp-ui
   :ensure t
   )
+
+
 ;; BULLET MODE FOR ORG MODE.
 (use-package org-bullets
   :ensure t
@@ -143,32 +201,39 @@
   :ensure t
   :config
   (load-theme 'kaolin-dark t)
-  (kaolin-treemacs-theme)
  )
 
-;; TAB CONFIGURATION
-
-(setq centaur-tabs-set-icons t) ;; enable the icons on the tabs.  
-
-;; ENABLE TABS THAT ACTUALLY LOOK NICE 
-(use-package centaur-tabs
+;; TREE MACS FILE EXPLORER. 
+(use-package treemacs
   :ensure t
-  :demand
   :config
-  (centaur-tabs-mode t)
-  :bind
-  ("C-<prior>" . centaur-tabs-backward)
-  ("C-<next>" . centaur-tabs-forward)
+  (treemacs-resize-icons 14)
   )
 
-;; TREE MACS FILE EXPLORER. 
-(use-package treemacs :ensure t)
+
+;; ENABLE FUZZY SEARCHING OF FILES AND COMMANDS 
+ (use-package counsel
+    :ensure t
+    :config
+    (use-package flx
+      :ensure t)
+    (ivy-mode 1)
+    (setq ivy-height 20)
+    (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
+
+
+;; TYPESCRIPT PACKAGE
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+         (typescript-mode . tide-hl-identifier-mode)
+         (before-save . tide-format-before-save)))
 
 
 ;; =============================================================================
 ;;        END OF PACKAGES 
 ;; ============================================================================
-
 
 ;; ENABLE REG EX SEARCHING
 (defun enable-minor-mode (my-pair)
@@ -176,15 +241,3 @@
   (if (buffer-file-name)
       (if (string-match (car my-pair) buffer-file-name)
 	  (funcall (cdr my-pair)))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages '(afternoon-theme)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
