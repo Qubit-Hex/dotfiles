@@ -1,25 +1,27 @@
 ;; CONFIGURATION: V.0.1
-;;
+;; AUTHOR+: QUBIT-HEX
+;; PURPOSE: TO MAKE A C/C++ AND WEB DEVELOPMENT IDE FOR MY NEED THAT I DON'T HATE.
+
 
 
 ;; window transparency setting
-(set-frame-parameter (selected-frame) 'alpha '(98 . 98))
-(add-to-list 'default-frame-alist '(alpha . (98 . 98)))
+(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+(add-to-list 'default-frame-alist '(alpha . (95 . 95)))
 (set-default 'truncate-lines t)
-(set-face-attribute 'default nil :height 91) ; adjust the front size of the application 
+(set-face-attribute 'default nil :height 88) ; adjust the front size of the application 
 (setq gc-cons-threshold 100000000)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
-
 (menu-bar-mode 1) ; SHOW THE MENU BAR.
 (tool-bar-mode 0) ; Disable tool bar
 (scroll-bar-mode -1) ; remove the scroll bar since neo tree gets fucked up.....
 (setq inhibit-splash-screen t)  ; disable the default emacs splash screen
+(setq-default tab-width 4  indent-tabs-mode nil) ; default tabbing  behaviour.
 
-;; ENABLE PACKAGE REPOS FOR THE PACKAGE MANAGER
+
 (eval-and-compile
   (customize-set-variable
    'package-archives '(("org" . "https://orgmode.org/elpa/")
@@ -29,6 +31,7 @@
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package)))
+
 ;; ENABLE CODE EXECUTATION IN ORG MODE WITH THE FOLLOWING LANAGUAGES.
 (org-babel-do-load-languages
  'org-babel-load-languages '(
@@ -38,7 +41,7 @@
 			     ))
 
 
-;; I BUFFER CONFIGURATION 
+;; i buffer configuration change it later to use-package. 
 (require 'ibuf-ext)
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
 (setq ibuffer-saved-filter-groups
@@ -61,20 +64,36 @@
 (setq ibuffer-show-empty-filter-groups nil)
 (setq ibuffer-expert t)
 
-
 ;; ============================================
 ;;          START CUSTOM COMMANDS
 ;; ===========================================
 
-;; SPAWN A NEW SHELL INSTANCE EVERYTIME IT IS CALLED.
 (defun spawn-shell()
   "Open a new instance of eshell."
   (interactive)
   (eshell 'N))
 
+(defun open-config-file()
+  "Open the init file"
+  (interactive)
+  (find-file user-init-file)
+  )
+
+
+;; ENABLE REG EX SEARCHING
+(defun enable-minor-mode (my-pair)
+  "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+  (if (buffer-file-name)
+      (if (string-match (car my-pair) buffer-file-name)
+	      (funcall (cdr my-pair))))
+  )
+
+
+
 ;; ============================================
 ;;          END OF CUSTOM COMMANDS
 ;; ===========================================
+
 
 ;; ==========================================
 ;;           CUSTOM KEYBOARD SHORTCUTS
@@ -82,7 +101,6 @@
 
 ;; REMAP C-x C-b to iBuffer since it works better
 ;; than the default buffer management
-;;
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 ; FIND a file with fzf 
@@ -90,7 +108,7 @@
 ;; TERMINAL CONTROL FLOW 
 (global-set-key  (kbd "C-c /") 'spawn-shell)
 ; toggle tree macs 
-(global-set-key (kbd "C-c e") 'neotree-toggle)
+(global-set-key (kbd "C-c e") 'dired)
 ; toggle the buffers
 (global-set-key (kbd "C-c b") 'ibuffer)
 ;; save the current file
@@ -98,11 +116,9 @@
 ;; kill the current buffer
 (global-set-key (kbd "C-c q") 'kill-current-buffer)
 
-
 ;; =============================================
 ;;          END OF CUSTOM KEYBOARD SHORTCUTS
 ;; =============================================
-
 
 
 ;; ==========================================================================
@@ -123,10 +139,12 @@
   (which-key-mode)
   )
 
+
 (use-package expand-region
   :ensure t
   :bind (("C-=" . er/expand-region)
-	 ("C--" . er/contract-region)))
+("C--" . er/contract-region)))
+
 
 ;; web-mode CONFIGURATION FOR WEB FILES.
 (use-package web-mode
@@ -141,10 +159,13 @@
          ("\\.php\\'" . web-mode))
   :commands web-mode)
 
+
 ;; company
 (use-package company
   :ensure t
-  :config (global-company-mode t))
+  :diminish company-mode
+  :config
+  (add-hook 'after-init-hook #'global-company-mode))
 
 ;; company box
 (use-package company-box
@@ -177,18 +198,13 @@
 	 )
   :commands lsp-deferred)
 
-;; PYTHON LSP SERVER 
+
+;; python server
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
-
-;; LSP UI.
-(use-package lsp-ui
-  :ensure t
-  )
-
+                          (lsp))))
 
 ;; BULLET MODE FOR ORG MODE.
 (use-package org-bullets
@@ -196,20 +212,6 @@
   :after org
   :hook
   (org-mode . (lambda () (org-bullets-mode 1))))
-
-
-;; DEFAULT THEMES PACKAGE THAT I LIKE TO USE BY DEFAULT
-(use-package kaolin-themes
-  :ensure t
-  :config
-  (load-theme 'kaolin-dark t)
- )
-
-;; TREE MACS FILE EXPLORER. 
-(use-package neotree
-  :ensure t
-  )
-
 
 ;; ENABLE FUZZY commands  
  (use-package counsel
@@ -221,26 +223,38 @@
     (setq ivy-height 20)
     (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
     (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t) 
+    (setq enable-recursive-minibuffers t)
     )
 
 
-;; TYPESCRIPT PACKAGE
-(use-package tide
+  
+;; I also like this theme package, too so lets include this too... 
+(use-package kaolin-themes
   :ensure t
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-         (typescript-mode . tide-hl-identifier-mode)
-         (before-save . tide-format-before-save)))
+  :config
+  (load-theme 'kaolin-dark t)
+  )
+
+(use-package doom-themes
+  :ensure t
+  )
+
 
 ;; =============================================================================
 ;;        END OF PACKAGES 
 ;; ============================================================================
 
-
-;; ENABLE REG EX SEARCHING
-(defun enable-minor-mode (my-pair)
-  "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-  (if (buffer-file-name)
-      (if (string-match (car my-pair) buffer-file-name)
-	  (funcall (cdr my-pair)))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(doom-1337))
+ '(custom-safe-themes
+   '("7a424478cb77a96af2c0f50cfb4e2a88647b3ccca225f8c650ed45b7f50d9525" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
