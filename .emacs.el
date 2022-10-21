@@ -3,7 +3,6 @@
 ;; PURPOSE: TO MAKE A C/C++ AND WEB DEVELOPMENT IDE FOR MY NEED THAT I DON'T HATE.
 
 
-
 ;; window transparency setting
 (set-frame-parameter (selected-frame) 'alpha '(95 . 95))
 (add-to-list 'default-frame-alist '(alpha . (95 . 95)))
@@ -40,27 +39,31 @@
 			     (R . t)
 			     ))
 
-
-;; i buffer configuration change it later to use-package. 
+;; I buffer configuration  
 (require 'ibuf-ext)
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
 (setq ibuffer-saved-filter-groups
-(quote (("default"
-("dired" (mode . dired-mode))
-("org" (name . "^.*org$"))
-("web" (or (mode . web-mode) (mode . js2-mode)))
-("shell" (or (mode . eshell-mode) (mode . shell-mode)))
-("mu4e" (name . "\*mu4e\*"))
-("programming" (or (mode . python-mode) (mode . c++-mode)))
-("emacs" (or
-(name . "^\\*scratch\\*$")
-(name . "^\\*Messages\\*$")))
-))))
+      (quote (("default"
+               ("dired" (mode . dired-mode))
+               ("emacs_config" (name . "^.emacs$"))
+               ("org" (name . "^.*org$"))
+               ("web" (or (mode . web-mode) (mode . js2-mode)))
+               ("shell" (or (mode . eshell-mode) (mode . shell-mode)))
+               ("mu4e" (name . "\*mu4e\*"))
+               ("programming" (or (mode . python-mode) (mode . c++-mode)))
+               ("emacs" (or (name . "^\\*scratch\\*$") (name . "^\\*Messages\\*$"))))
+              )
+             )
+      )
+
+
 
 (add-hook 'ibuffer-mode-hook
 (lambda ()
 (ibuffer-auto-mode 1)
-(ibuffer-switch-to-saved-filter-groups "default")))
+(ibuffer-switch-to-saved-filter-groups "default"))
+)
+
 (setq ibuffer-show-empty-filter-groups nil)
 (setq ibuffer-expert t)
 
@@ -68,12 +71,14 @@
 ;;          START CUSTOM COMMANDS
 ;; ===========================================
 
+
 (defun spawn-shell()
   "Open a new instance of eshell."
   (interactive)
-  (eshell 'N))
+  (eshell 'N)
+  )
 
-(defun open-config-file()
+(defun open-config()
   "Open the init file"
   (interactive)
   (find-file user-init-file)
@@ -99,22 +104,13 @@
 ;;           CUSTOM KEYBOARD SHORTCUTS
 ;; =========================================
 
-;; REMAP C-x C-b to iBuffer since it works better
-;; than the default buffer management
-
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-; FIND a file with fzf 
-(global-set-key (kbd "C-c p") 'counsel-fzf)
-;; TERMINAL CONTROL FLOW 
-(global-set-key  (kbd "C-c /") 'spawn-shell)
-; toggle tree macs 
-(global-set-key (kbd "C-c e") 'dired)
-; toggle the buffers
-(global-set-key (kbd "C-c b") 'ibuffer)
-;; save the current file
-(global-set-key (kbd "C-c s") 'save-buffer)
-;; kill the current buffer
-(global-set-key (kbd "C-c q") 'kill-current-buffer)
+(global-set-key (kbd "C-c p") 'helm-find) ;; fuzzy finding
+(global-set-key (kbd "C-c f") 'helm-find-files) ; fuzzy browsing 
+(global-set-key  (kbd "C-c /") 'spawn-shell) ;; spawn-shell
+(global-set-key (kbd "C-c e") 'neotree-toggle) ;; neo tree toggle 
+(global-set-key (kbd "C-c b") 'ibuffer) ;; current buffers that are in use.
+(global-set-key (kbd "C-c s") 'save-buffer) ;; save the current buffer
+(global-set-key (kbd "C-c q") 'quit-window) ;; kill the current window and
 
 ;; =============================================
 ;;          END OF CUSTOM KEYBOARD SHORTCUTS
@@ -213,21 +209,32 @@
   :hook
   (org-mode . (lambda () (org-bullets-mode 1))))
 
-;; ENABLE FUZZY commands  
- (use-package counsel
-    :ensure t
-    :config
-    (use-package flx
-      :ensure t)
-    (ivy-mode 1)
-    (setq ivy-height 20)
-    (setq ivy-re-builders-alist '((t . ivy--regex-fuzzy)))
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-    )
+;; projectile for searching projects
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1)
+  )
 
+;; helm
+(use-package helm
+  :ensure t
+  :demand
+  :bind (("M-x" . helm-M-x)
+         ("C-x C-f" . helm-find-files)
+         ("C-x b" . helm-buffers-list)
+         ("C-x c o" . helm-occur)) ;SC
+  ("M-y" . helm-show-kill-ring) ;SC
+  ("C-x r b" . helm-filtered-bookmarks) ;SC
+  :preface (require 'helm-config)
+  :config (helm-mode 1)
+  )
 
-  
+;; neo tree
+(use-package neotree
+  :ensure t
+  )
+
 ;; I also like this theme package, too so lets include this too... 
 (use-package kaolin-themes
   :ensure t
@@ -235,6 +242,7 @@
   (load-theme 'kaolin-dark t)
   )
 
+;; all the themes from doom
 (use-package doom-themes
   :ensure t
   )
@@ -243,18 +251,3 @@
 ;; =============================================================================
 ;;        END OF PACKAGES 
 ;; ============================================================================
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(doom-1337))
- '(custom-safe-themes
-   '("7a424478cb77a96af2c0f50cfb4e2a88647b3ccca225f8c650ed45b7f50d9525" default)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
