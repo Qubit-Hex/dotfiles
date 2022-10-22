@@ -1,6 +1,10 @@
-" ============ "
-" ===Basics=== "
-" ============ "
+" =====================================================================================
+"       VIM: CONFIG V.0.11
+"       AUTHOR: QB
+" ====================================================================================
+"
+
+
 syntax on
 set noerrorbells 
 set belloff=all
@@ -18,46 +22,14 @@ set t_Co=256
 set splitbelow
 cabbrev bterm bo term
 set term=xterm-256color 
-set background=dark
-set termguicolors
-
-
-" File-types
-autocmd BufNewFile,BufRead *.go set filetype=go
-
-" Tabs
-set sw=2 ts=2 sts=2 " Default
-autocmd FileType html :setlocal sw=2 ts=2 sts=2
-autocmd FileType ruby :setlocal sw=2 ts=2 sts=2
-autocmd FileType javascript :setlocal sw=2 ts=2 sts=2
-autocmd FileType xml :setlocal sw=2 ts=2 sts=2
-autocmd FileType python :setlocal sw=4 ts=4 sts=4
-autocmd FileType go :setlocal sw=4 ts=4 sts=4
-autocmd FileType php :setlocal sw=4 ts=4 sts=4
-autocmd FileType css :setlocal sw=4 ts=4 sts=4
-
-" Make vertical separator pretty
+set sw=4 ts=4 sts=4
 highlight VertSplit cterm=NONE
 set fillchars+=vert:\▏
 
-" ============== "
-" ===Mappings=== "
-" ============== "
+" ====================================================================================
+"           START OF CUSTOM KEYBOARD SHORT CUTS 
+" ==================================================================================
 let mapleader = " "
-
-" Pane navigation
-noremap <C-J> <C-W><C-J>
-noremap <C-K> <C-W><C-K>
-noremap <C-L> <C-W><C-L>
-noremap <C-H> <C-W><C-H>
-
-" For vim-terminal
-tnoremap <C-J> <C-W><C-J>
-tnoremap <C-K> <C-W><C-K>
-tnoremap <C-L> <C-W><C-L>
-tnoremap <C-H> <C-W><C-H>
-tnoremap <C-b> <C-\><C-n>
-
 
 noremap <leader>c "*yy<cr>
 noremap<leader>v "+p<cr>
@@ -73,9 +45,10 @@ noremap <leader>t :tabnew <cr>
 noremap <leader>s :vsplit <cr>
 
 
+" ========================================================================================
+"           END OF CUSTOM KEYBOARD SHORT CUTS 
+" =======================================================================================
 
-" This is auto complete fix after COC did the update 
-" the broke my config!
 
 function! CheckBackspace() abort
   let col = col('.') - 1
@@ -94,9 +67,10 @@ inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
                               \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" ============="
-" ===Plugins==="
-" ============="
+" =============================================================================
+"               START OF PACKAGES 
+" ============================================================================
+
 call plug#begin('~/.vim/plugged')
 
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
@@ -113,12 +87,10 @@ call plug#begin('~/.vim/plugged')
     Plug 'sheerun/vim-polyglot'
 
     " colorschemes
-    Plug 'sainnhe/everforest'
     Plug 'ayu-theme/ayu-vim'
-    Plug 'ghifarit53/tokyonight-vim'
-    Plug 'dracula/vim'
     Plug 'joshdick/onedark.vim'
-    Plug 'AlessandroYorba/Sierra'
+    Plug 'jdkanani/vim-material-theme'
+    Plug 'rafi/awesome-vim-colorschemes'
 
     " Icon Theme " 
     Plug 'ryanoasis/vim-devicons'
@@ -137,24 +109,25 @@ call plug#begin('~/.vim/plugged')
 
 call plug#end()
 
-" COLOR SCHEME SETTINGS " 
+" ========================================================================================================================
+"                   END OF PACKAGES 
+" =======================================================================================================================
 
-
-let g:sierra_Sunset = 1
-
-colorscheme sierra
+" Theme Settings 
+set background=dark
+set termguicolors
+colorscheme challenger_deep
 let g:airline_theme = "base16"
 hi Normal guibg=NONE ctermbg=NONE
 hi LineNr guibg=NONE ctermbg=NONE
 hi SignColumn guibg=NONE ctermbg=NONE
 hi EndOfBuffer guibg=NONE ctermbg=NONE
-
-
-
 set guifont=DroidSansMono\ Nerd\ Font\ 11
 
 
-" PLUG IN CONFIGS " 
+
+
+" Nerd Tree Settings 
 let NERDTreeMinimalUI=1
 autocmd BufEnter * if tabpagenr('$') == 1 
       \ && winnr('$') == 1 
@@ -167,22 +140,21 @@ let g:NERDTreeHighlightFolders = 1
 let g:NERDTreeHighlightFoldersFullName = 1
 
 
-
 " vim-devicons
 let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {}
 let g:webdevicons_enable = 1
 let g:webdevicons_enable_nerdtree = 1
 let g:webdevicons_enable_airline_tabline = 1
+
 " vim-airlines
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#bufferline#enabled = 1
-let g:airline_left_sep = ''
+let g:airline_left_sep = '🙉'
 let g:airline_left_alt_sep = ''
 let g:airline_right_sep = ''
 
+
 " fzf.vim
-
-
     let g:fzf_colors =                                                                         
     \ { 'fg':      ['fg', 'Normal'],                                                           
       \ 'bg':      ['bg', 'Normal'],                                                           
@@ -198,8 +170,6 @@ let g:airline_right_sep = ''
       \ 'spinner': ['fg', 'Label'],                                                            
       \ 'header':  ['fg', 'Comment'] } 
 
-
-
 " vim-jsx-pretty
 hi jsxAttrib ctermfg=3*
 hi jsxComponentName ctermfg=4*
@@ -212,18 +182,10 @@ hi jsxCloseString ctermfg=3*
 let g:typescript_indent_disable = 1
 hi javaScriptLineComment ctermfg=4*
 
-" vim-go
-let g:go_highlight_structs = 1 
-let g:go_highlight_methods = 1
-let g:go_highlight_functions = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_highlight_variable_declarations = 1
-let g:go_highlight_format_strings = 1
-let g:go_highlight_string_spellcheck = 1
-let g:go_highlight_types = 1
-let g:go_highlight_function_calls = 1
 
+" ==========================================================
+"        START OF  CUSTOM FUNCTIONS 
+" =========================================================       
 
 
 " In order to count the amount of code 
@@ -298,3 +260,8 @@ function LineUp()
   normal! pjdd
 endfunction
 command! LU call LineUp()n
+
+
+" =========================================================
+"           END OF CUSTOM FUNCTIONS 
+" =========================================================
