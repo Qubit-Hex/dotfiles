@@ -3,9 +3,13 @@
 #### I configurated them for the following languages.
 
 - Python 
-- JS / typescript
+- Javascript 
+- Typescript 
+- React
 - PHP
-- C++
+- C++ 11
+- C 99
+- Java 
 - CSS/SCSS
 
 ### nothing crazy just something minimal but, works.
