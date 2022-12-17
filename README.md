@@ -5,11 +5,10 @@
 - Python 
 - Javascript 
 - Typescript 
-- React
 - PHP
-- C++ 11
-- C 99
+- C+ 11 / C99 
 - Java 
 - CSS/SCSS
+- Haskell 
 
-### nothing crazy just something minimal but, works.
+## Nothing crazy but, simple for my purposes.
