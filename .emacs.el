@@ -1,11 +1,10 @@
 ;; CONFIGURATION: V.0.1
 ;; AUTHOR+: QUBIT-HEX
 
-
 ;; DISPLAY SETTINGS
-(set-frame-parameter (selected-frame) 'alpha '(92 . 92)) ; trasnparent setting
-(add-to-list 'default-frame-alist '(alpha . (92 . 92))) ; transparent settings
-(set-face-attribute 'default nil :height 88)
+(set-frame-parameter (selected-frame) 'alpha '(95 . 95)) ; trasnparent setting
+(add-to-list 'default-frame-alist '(alpha . (95 . 95))) ; transparent settings
+(set-face-attribute 'default nil :height 87)
 (set-default 'truncate-lines t)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
 (menu-bar-mode 1) ; disable the menu 
@@ -19,6 +18,8 @@
 (setq create-lockfiles nil)
 (setq inhibit-splash-screen t)  ; disable the default emacs splash screen
 (setq-default tab-width 4  indent-tabs-mode nil) ; default tabbing  behaviour.
+(auto-save-visited-mode 1) 
+(setq auto-save-timeout 3) ; auto save the file after 3 seconds have passed
 
 
 ;; PACKAGE LOCATIONS 
@@ -31,8 +32,6 @@
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package)))
-
-
 
 ;; ORG BABEL CONFIGURATION FOR ORG FILES 
 (org-babel-do-load-languages
@@ -71,7 +70,6 @@
       (if (string-match (car my-pair) buffer-file-name)
 	      (funcall (cdr my-pair))))
   )
-
 
 
 ;; ============================================
@@ -149,7 +147,7 @@
   :ensure t
   :hook (company-mode . company-box-mode))
 
-;; magit
+;; magit git intergration 
 (use-package magit
   :ensure t
   :bind (
@@ -189,6 +187,19 @@
                        (require 'lsp-java)
                        (lsp)))
   )
+
+;; lsp haskell mode 
+(use-package lsp-haskell
+  :ensure t
+  :hook (haskell-mode . (lambda ()
+                          (require 'lsp-haskell)
+                          (lsp)))
+)
+;; haskell-mode
+(use-package haskell-mode
+  :ensure t 
+  )
+
 
 ;; BULLET MODE FOR ORG MODE.
 (use-package org-bullets
@@ -230,18 +241,11 @@
   :preface (require 'helm-config)
   :config (helm-mode 1)
   )
-;; koalin themes 
-(use-package kaolin-themes
-  :ensure t
-  )
 
-
-;; Doom themss
-
+;; doom themes 
 (use-package doom-themes
   :ensure t
   )
-
 
 
 ;;REST CLIENT MODE
