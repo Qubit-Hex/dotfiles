@@ -1,15 +1,14 @@
 ;; CONFIGURATION: V.0.1
-;; AUTHOR+: QUBIT-HEX
-
 ;; DISPLAY SETTINGS
-(set-frame-parameter (selected-frame) 'alpha '(95 . 95)) ; trasnparent setting
-(add-to-list 'default-frame-alist '(alpha . (95 . 95))) ; transparent settings
-(set-face-attribute 'default nil :height 87)
+
 (set-default 'truncate-lines t)
+(set-face-attribute 'default nil :height 85)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
 (menu-bar-mode 1) ; disable the menu 
 (tool-bar-mode 0) ; Disable tool bar
-(scroll-bar-mode -1) ; remove the scroll bar since neo tree gets fucked up....
+(scroll-bar-mode 0) ; remove the scroll bar since neo tree gets fucked up....
+(set-frame-parameter (selected-frame) 'alpha '(90 95))
+(setq sql-mysql-program "/opt/lampp/bin/mysql")
 
 
 ;; FILE BEHAVIOUR 
@@ -17,10 +16,8 @@
 (setq make-backup-files nil)
 (setq create-lockfiles nil)
 (setq inhibit-splash-screen t)  ; disable the default emacs splash screen
-(setq-default tab-width 4  indent-tabs-mode nil) ; default tabbing  behaviour.
-(auto-save-visited-mode 1) 
-(setq auto-save-timeout 3) ; auto save the file after 3 seconds have passed
-
+(setq-default tab-width 4)
+(setq lsp-enable-snippet nil)
 
 ;; PACKAGE LOCATIONS 
 (eval-and-compile
@@ -37,14 +34,12 @@
 (org-babel-do-load-languages
  'org-babel-load-languages '(
 			                 (python . t)
-                             (R . t)
-                             )
- )
+                             (R . t)))
+
 
 ;; ============================================
 ;;          START CUSTOM COMMANDS
 ;; ===========================================
-
 
 (defun emacs-config-file()
   "Open the init file"
@@ -57,11 +52,14 @@
   (eshell 'N)
   )
 
+;; count lines in the current repo 
 (defun count-lines-in-repo()
-  "In order to count the lines of code within the git repo"
+  "In order to count the lines of code within the git repo."
   (interactive)
-  (shell-command "git ls-files | xargs cloc")
-  )
+  (let ((buffer (get-buffer-create "*Lines of Code*")))
+    (shell-command "git ls-files | xargs cloc" buffer)
+    (display-buffer-in-side-window buffer '((side . bottom)))
+    ))
 
 ;; ENABLE REG EX SEARCHING
 (defun enable-minor-mode (my-pair)
@@ -81,13 +79,11 @@
 ;;           CUSTOM KEYBOARD SHORTCUTS
 ;; =========================================
 
-(global-set-key (kbd "C-c p") 'helm-find) ;; fuzzy finding
 (global-set-key (kbd "C-c e") 'neotree-toggle) ;; toggle neo tree
-(global-set-key (kbd "C-c f") 'helm-find-files) ; fuzzy browsing  
+(global-set-key (kbd "C-c f") 'projectile-find-file) ; fuzzy browsing  
 (global-set-key (kbd "C-c s") 'save-buffer) ;; save the current buffer
 (global-set-key (kbd "C-c q") 'quit-window) ;; kill the current window and
 (global-set-key (kbd "C-c a") 'org-agenda) ;; toggle the org agenda menu  for easier access
-
 
 ;; =============================================
 ;;          END OF CUSTOM KEYBOARD SHORTCUTS
@@ -113,6 +109,7 @@
   (which-key-mode)
   )
 
+;; expand region
 (use-package expand-region
   :ensure t
   :bind (("C-=" . er/expand-region)
@@ -122,6 +119,7 @@
 ;; web-mode CONFIGURATION FOR WEB FILES.
 (use-package web-mode
   :ensure t
+  :commands web-mode 
   :mode (("\\.js\\'" . web-mode)
 	 ("\\.jsx\\'" .  web-mode)
 	 ("\\.ts\\'" . web-mode)
@@ -131,9 +129,7 @@
 	 ("\\.scss\\'" . web-mode)
      ("\\.php\\'" . web-mode)
      ("\\.blade\\'" . web-mode) 
-     )
-  :commands web-mode)
-
+     ))
 
 ;; company
 (use-package company
@@ -167,11 +163,11 @@
 ;; LSP MODE
 (use-package lsp-mode
   :ensure t
+  :commands lsp-deferred
   :hook (
 	 (web-mode . lsp-deferred)
 	 (lsp-mode . lsp-enable-which-key-integration)
-	 )
-  :commands lsp-deferred)
+	 ))
 
 ;; python server
 (use-package lsp-pyright
@@ -200,6 +196,11 @@
   :ensure t 
   )
 
+;; PHP MODE
+(use-package php-mode
+  :ensure t
+  )
+
 
 ;; BULLET MODE FOR ORG MODE.
 (use-package org-bullets
@@ -225,30 +226,28 @@
   :ensure t
   :config
   (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-  (setq neo-window-width 45)
+  (setq neo-window-width 48)
   )
 
-;; helm
+;; helm 
 (use-package helm
   :ensure t
-  :demand
   :bind (("M-x" . helm-M-x)
          ("C-x C-f" . helm-find-files)
          ("C-x b" . helm-buffers-list)
-         ("C-x c o" . helm-occur)) ;SC
-  ("M-y" . helm-show-kill-ring) ;SC
-  ("C-x r b" . helm-filtered-bookmarks) ;SC
-  :preface (require 'helm-config)
-  :config (helm-mode 1)
-  )
-
-;; doom themes 
-(use-package doom-themes
-  :ensure t
-  )
+         ("C-x c o" . helm-occur)
+         ("M-y" . helm-show-kill-ring)
+         ("C-x r b" . helm-filtered-bookmarks))
+  
+  :config (helm-mode 1))
 
 
 ;;REST CLIENT MODE
 (use-package restclient
+  :ensure t
+  )
+
+;; DOOM THEMES 
+(use-package doom-themes
   :ensure t
   )
