@@ -1,7 +1,7 @@
 ;; CONFIGURATION: V.0.1
 ;; DISPLAY SETTINGS
 
-(set-default 'truncate-lines t)
+(setq-default 'truncate-lines t)
 (set-face-attribute 'default nil :height 85)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
 (menu-bar-mode 1) ; disable the menu 
@@ -41,11 +41,15 @@
 ;;          START CUSTOM COMMANDS
 ;; ===========================================
 
+;; Open the Emacs config file 
 (defun emacs-config-file()
   "Open the init file"
   (interactive)
   (find-file user-init-file))
 
+
+
+;; Spawn a new shell in a buffer good for starting background servers, shells etc... 
 (defun spawn-shell()
   "Open a new instance of eshell."
   (interactive)
@@ -68,6 +72,21 @@
       (if (string-match (car my-pair) buffer-file-name)
 	      (funcall (cdr my-pair))))
   )
+
+;; auto insert a comment for labeling the file.
+(defun insert-jsdoc (filename description)
+  "Insert a JS doc comment with file, and description at the top of the file."
+  (interactive "sEnter file name: \nsEnter file description: ")
+  (beginning-of-buffer)
+  (insert (format "/*\n *\n *  @file: %s \n *\n *  @description: %s \n *\n */\n\n" filename description)))
+
+
+;; Insert a JS Doc on the current line the cursor is at, good for automating function doc inserts.. 
+(defun insert-function-comment (function-name description)
+  "Inserts a block comment with the given function name and description on the current line in the specified format."
+  (interactive "sEnter function name: \nsEnter function description: ")
+  (beginning-of-line)
+  (insert (format "/*\n *\n *  @function: %s \n *\n *  @description: %s \n *\n */\n" function-name  description)))
 
 
 ;; ============================================
