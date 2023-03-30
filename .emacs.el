@@ -1,15 +1,13 @@
 ;; CONFIGURATION: V.0.1
 ;; DISPLAY SETTINGS
 
-(setq-default 'truncate-lines t)
-(set-face-attribute 'default nil :height 85)
 (global-display-line-numbers-mode)  ; display line numbers within current buffer
 (menu-bar-mode 1) ; disable the menu 
 (tool-bar-mode 0) ; Disable tool bar
-(scroll-bar-mode 0) ; remove the scroll bar since neo tree gets fucked up....
-(set-frame-parameter (selected-frame) 'alpha '(90 95))
+(scroll-bar-mode 0) ;;  remove the scroll bar since neo tree gets fucked up....
+(set-frame-parameter (selected-frame) 'alpha '(95 95))
 (setq sql-mysql-program "/opt/lampp/bin/mysql")
-
+(set-face-attribute 'default nil :height 85)
 
 ;; FILE BEHAVIOUR 
 (setq auto-save-default nil)
@@ -18,6 +16,9 @@
 (setq inhibit-splash-screen t)  ; disable the default emacs splash screen
 (setq-default tab-width 4)
 (setq lsp-enable-snippet nil)
+(add-hook 'LaTeX-mode-hook 'turn-on-reftex)  ; add the latex mod hook to the application
+(set-default 'truncate-lines t)
+
 
 ;; PACKAGE LOCATIONS 
 (eval-and-compile
@@ -34,7 +35,31 @@
 (org-babel-do-load-languages
  'org-babel-load-languages '(
 			                 (python . t)
-                             (R . t)))
+							 (latex . t)
+							 (gnuplot . t) 
+							 ))
+
+
+;; ORG MODE CONFIGURATION
+;; Latex preview options.
+
+ '(org-format-latex-options
+   (quote
+    (:foreground default
+				 :background whitex
+				 :scale 3.0
+				 :html-foreground "Black"
+				 :html-background "Transparent"
+				 :html-scale 3.0
+				 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")
+				 )
+	)
+   )
+
+
+;; display inline images on start up org file
+;; use this for math symbols within my org files.
+(setq org-startup-with-inline-images t)
 
 
 ;; ============================================
@@ -56,14 +81,6 @@
   (eshell 'N)
   )
 
-;; count lines in the current repo 
-(defun count-lines-in-repo()
-  "In order to count the lines of code within the git repo."
-  (interactive)
-  (let ((buffer (get-buffer-create "*Lines of Code*")))
-    (shell-command "git ls-files | xargs cloc" buffer)
-    (display-buffer-in-side-window buffer '((side . bottom)))
-    ))
 
 ;; ENABLE REG EX SEARCHING
 (defun enable-minor-mode (my-pair)
@@ -73,7 +90,7 @@
 	      (funcall (cdr my-pair))))
   )
 
-;; auto insert a comment for labeling the file.
+;; auto insert a comment for labeling the file. for langs with /* comments 
 (defun insert-jsdoc (filename description)
   "Insert a JS doc comment with file, and description at the top of the file."
   (interactive "sEnter file name: \nsEnter file description: ")
@@ -81,12 +98,39 @@
   (insert (format "/*\n *\n *  @file: %s \n *\n *  @description: %s \n *\n */\n\n" filename description)))
 
 
-;; Insert a JS Doc on the current line the cursor is at, good for automating function doc inserts.. 
-(defun insert-function-comment (function-name description)
+;; Insert a JS Doc on the current line the cursor is at, good for automating function doc inserts..  /* comments 
+(defun insert-comment (function-name description)
   "Inserts a block comment with the given function name and description on the current line in the specified format."
-  (interactive "sEnter function name: \nsEnter function description: ")
+  (interactive "sEnter title information: \nsEnter description: ")
   (beginning-of-line)
-  (insert (format "/*\n *\n *  @function: %s \n *\n *  @description: %s \n *\n */\n" function-name  description)))
+  (insert (format "/*\n *\n *  %s \n *\n *  @description: %s \n *\n */\n" function-name  description)))
+
+
+
+(defun insert-pydoc (filename description)
+  "Insert a Python docstring with file, and description at the top of the file."
+  (interactive "sEnter file name: \nsEnter file description: ")
+  (beginning-of-buffer)
+  (insert (format "\"\"\"\n    %s\n\n    %s\n\n\"\"\"\n\n" filename description)))
+
+
+(defun insert-python-block-commnt (description funcName)
+  "Insert a Python docstring with file, and description at the top of the file."
+  (interactive "sEnter method / function  name: \nsEnter file description: ")
+  (beginning-of-line)
+  (insert (format "\"\"\"\n    %s\n\n    %s\n\n\"\"\"\n\n" funcName description)))
+
+
+
+(defun popup-shell ()  
+    "Create a new eshell buffer and display it at the bottom of the frame with a height of 10 lines."
+  (interactive)
+  (let ((height 20)
+        (main-win (selected-window)))
+    (split-window main-win (- height))
+    (other-window 1)
+    (eshell)))
+
 
 
 ;; ============================================
@@ -98,11 +142,14 @@
 ;;           CUSTOM KEYBOARD SHORTCUTS
 ;; =========================================
 
+
 (global-set-key (kbd "C-c e") 'neotree-toggle) ;; toggle neo tree
 (global-set-key (kbd "C-c f") 'projectile-find-file) ; fuzzy browsing  
 (global-set-key (kbd "C-c s") 'save-buffer) ;; save the current buffer
 (global-set-key (kbd "C-c q") 'quit-window) ;; kill the current window and
 (global-set-key (kbd "C-c a") 'org-agenda) ;; toggle the org agenda menu  for easier access
+(global-set-key (kbd "C-c /") 'popup-shell) ;; toggle a popup shell for the current buffer
+
 
 ;; =============================================
 ;;          END OF CUSTOM KEYBOARD SHORTCUTS
@@ -179,7 +226,7 @@
          (lambda () (require 'ccls) (lsp)))
   )
 
-;; LSP MODE
+;; Emacs Lsp Mode
 (use-package lsp-mode
   :ensure t
   :commands lsp-deferred
@@ -188,7 +235,7 @@
 	 (lsp-mode . lsp-enable-which-key-integration)
 	 ))
 
-;; python server
+;; python server LSP
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
@@ -209,7 +256,8 @@
   :hook (haskell-mode . (lambda ()
                           (require 'lsp-haskell)
                           (lsp)))
-)
+  )
+
 ;; haskell-mode
 (use-package haskell-mode
   :ensure t 
@@ -219,6 +267,12 @@
 (use-package php-mode
   :ensure t
   )
+
+;; DOCKER INTERGRATION
+
+(use-package docker
+  :ensure t
+  :bind ("C-c d" . docker))
 
 
 ;; BULLET MODE FOR ORG MODE.
@@ -257,16 +311,13 @@
          ("C-x c o" . helm-occur)
          ("M-y" . helm-show-kill-ring)
          ("C-x r b" . helm-filtered-bookmarks))
-  
   :config (helm-mode 1))
 
 
-;;REST CLIENT MODE
-(use-package restclient
-  :ensure t
-  )
+;;
 
-;; DOOM THEMES 
+;; doom theme packages
 (use-package doom-themes
   :ensure t
   )
+
